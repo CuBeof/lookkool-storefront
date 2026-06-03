@@ -1,24 +1,61 @@
 "use client";
 
 import * as React from "react";
-import { BadgeCheck, PencilLine } from "lucide-react";
+import Link from "next/link";
+import { BadgeCheck, ChevronLeft, ChevronRight, Play } from "lucide-react";
 
 import type { Product } from "@/lib/types";
 import { useReviews } from "@/lib/reviews-context";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { RatingStars } from "@/components/product/rating-stars";
-import { ReviewDialog } from "@/components/product/review-dialog";
+import { Lightbox, type LightboxItem } from "@/components/ui/lightbox";
+
+const PAGE_SIZE = 4;
 
 export function ProductReviews({ product }: { product: Product }) {
   const { getForProduct } = useReviews();
   const reviews = getForProduct(product.id);
 
-  // Breakdown from the detailed reviews we can show.
+  const [filter, setFilter] = React.useState<number | "all">("all");
+  const [page, setPage] = React.useState(1);
+  const [lightbox, setLightbox] = React.useState<{
+    items: LightboxItem[];
+    index: number;
+    open: boolean;
+  }>({ items: [], index: 0, open: false });
+
+  // average + breakdown from all reviews for this product
+  const total = reviews.length;
+  const average =
+    total > 0
+      ? reviews.reduce((s, r) => s + r.rating, 0) / total
+      : product.rating;
+
   const breakdown = [5, 4, 3, 2, 1].map((star) => ({
     star,
     count: reviews.filter((r) => Math.round(r.rating) === star).length,
   }));
   const maxCount = Math.max(1, ...breakdown.map((b) => b.count));
+
+  const filtered =
+    filter === "all"
+      ? reviews
+      : reviews.filter((r) => Math.round(r.rating) === filter);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageItems = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  function changeFilter(value: number | "all") {
+    setFilter(value);
+    setPage(1);
+  }
+
+  function openLightbox(items: LightboxItem[], index: number) {
+    setLightbox({ items, index, open: true });
+  }
 
   return (
     <section className="mt-16 scroll-mt-24" id="reviews">
@@ -26,125 +63,217 @@ export function ProductReviews({ product }: { product: Product }) {
         Reviews &amp; ratings ⭐
       </h2>
 
-      <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
-        {/* summary */}
+      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+        {/* summary + filters */}
         <div className="bg-card h-fit space-y-4 rounded-3xl border p-6">
           <div className="text-center">
             <div className="font-display text-5xl font-bold">
-              {product.rating.toFixed(1)}
+              {average.toFixed(1)}
             </div>
             <RatingStars
-              rating={product.rating}
+              rating={average}
               showCount={false}
               className="mt-1 justify-center"
             />
             <p className="text-muted-foreground mt-1 text-sm">
-              Based on {product.reviews.toLocaleString()} reviews
+              {total > 0
+                ? `Based on ${total} verified review${total > 1 ? "s" : ""}`
+                : "No reviews yet"}
             </p>
           </div>
 
-          {reviews.length > 0 && (
+          {total > 0 && (
             <div className="space-y-1.5">
+              <button
+                onClick={() => changeFilter("all")}
+                className={cn(
+                  "flex w-full items-center justify-between rounded-xl px-2 py-1 text-xs font-semibold transition-colors",
+                  filter === "all" ? "bg-accent" : "hover:bg-accent/60"
+                )}
+              >
+                <span>All ratings</span>
+                <span className="text-muted-foreground">{total}</span>
+              </button>
               {breakdown.map((b) => (
-                <div key={b.star} className="flex items-center gap-2 text-xs">
-                  <span className="w-6 text-muted-foreground">{b.star}★</span>
+                <button
+                  key={b.star}
+                  onClick={() => b.count > 0 && changeFilter(b.star)}
+                  disabled={b.count === 0}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-xl px-2 py-1 text-xs transition-colors disabled:opacity-40",
+                    filter === b.star ? "bg-accent" : "hover:bg-accent/60"
+                  )}
+                >
+                  <span className="text-muted-foreground w-6">{b.star}★</span>
                   <div className="bg-muted h-2 flex-1 overflow-hidden rounded-full">
                     <div
-                      className="bg-amber-400 h-full rounded-full"
+                      className="h-full rounded-full bg-amber-400"
                       style={{ width: `${(b.count / maxCount) * 100}%` }}
                     />
                   </div>
-                  <span className="w-5 text-right text-muted-foreground">
+                  <span className="text-muted-foreground w-5 text-right">
                     {b.count}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           )}
 
-          <ReviewDialog
-            productId={product.id}
-            productHandle={product.handle}
-            productTitle={product.title}
-            trigger={
-              <Button variant="outline" className="w-full">
-                <PencilLine className="size-4" /> Write a review
-              </Button>
-            }
-          />
+          <p className="text-muted-foreground border-t pt-3 text-xs">
+            Only verified buyers can leave a review. Purchased something?{" "}
+            <Link href="/account/orders" className="text-primary font-semibold">
+              Review it from your orders
+            </Link>
+            .
+          </p>
         </div>
 
         {/* list */}
         <div className="space-y-5">
-          {reviews.length === 0 ? (
+          {total === 0 ? (
             <div className="bg-card flex flex-col items-center gap-2 rounded-3xl border border-dashed p-10 text-center">
               <span className="text-4xl">📝</span>
-              <p className="font-semibold">No written reviews yet</p>
+              <p className="font-semibold">No reviews yet</p>
               <p className="text-muted-foreground text-sm">
-                Be the first to share photos and thoughts!
+                Be the first to share your thoughts after you buy!
               </p>
             </div>
           ) : (
-            reviews.map((r) => (
-              <article
-                key={r.id}
-                className="bg-card space-y-3 rounded-3xl border p-5"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{r.author}</span>
-                      {r.verified && (
-                        <span className="text-primary inline-flex items-center gap-0.5 text-xs font-semibold">
-                          <BadgeCheck className="size-3.5" /> Verified buyer
-                        </span>
-                      )}
+            <>
+              {filter !== "all" && (
+                <p className="text-muted-foreground text-sm">
+                  Showing {filtered.length} review
+                  {filtered.length !== 1 ? "s" : ""} with {filter}★ ·{" "}
+                  <button
+                    onClick={() => changeFilter("all")}
+                    className="text-primary font-semibold"
+                  >
+                    Clear filter
+                  </button>
+                </p>
+              )}
+
+              {pageItems.map((r) => {
+                const mediaItems: LightboxItem[] = r.media.map((m) => ({
+                  type: m.type,
+                  url: m.url,
+                }));
+                return (
+                  <article
+                    key={r.id}
+                    className="bg-card space-y-3 rounded-3xl border p-5"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{r.author}</span>
+                          {r.verified && (
+                            <span className="text-primary inline-flex items-center gap-0.5 text-xs font-semibold">
+                              <BadgeCheck className="size-3.5" /> Verified buyer
+                            </span>
+                          )}
+                        </div>
+                        <RatingStars
+                          rating={r.rating}
+                          showCount={false}
+                          className="mt-1"
+                        />
+                      </div>
+                      <time className="text-muted-foreground text-xs">
+                        {new Date(r.createdAt).toLocaleDateString()}
+                      </time>
                     </div>
-                    <RatingStars
-                      rating={r.rating}
-                      showCount={false}
-                      className="mt-1"
-                    />
-                  </div>
-                  <time className="text-muted-foreground text-xs">
-                    {new Date(r.createdAt).toLocaleDateString()}
-                  </time>
-                </div>
 
-                {r.title && <p className="font-semibold">{r.title}</p>}
-                {r.body && (
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {r.body}
-                  </p>
-                )}
-
-                {r.media.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {r.media.map((m, i) =>
-                      m.type === "image" ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          key={i}
-                          src={m.url}
-                          alt={`Customer photo ${i + 1}`}
-                          className="bg-muted size-20 rounded-xl border object-cover sm:size-24"
-                        />
-                      ) : (
-                        <video
-                          key={i}
-                          src={m.url}
-                          controls
-                          className="bg-muted size-20 rounded-xl border object-cover sm:size-24"
-                        />
-                      )
+                    {r.title && <p className="font-semibold">{r.title}</p>}
+                    {r.body && (
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {r.body}
+                      </p>
                     )}
-                  </div>
-                )}
-              </article>
-            ))
+
+                    {mediaItems.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {mediaItems.map((m, i) => (
+                          <button
+                            key={i}
+                            onClick={() => openLightbox(mediaItems, i)}
+                            aria-label="Open media"
+                            className="group bg-muted relative size-20 cursor-zoom-in overflow-hidden rounded-xl border sm:size-24"
+                          >
+                            {m.type === "image" ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={m.url}
+                                alt={`Customer media ${i + 1}`}
+                                className="size-full object-cover transition-transform group-hover:scale-105"
+                              />
+                            ) : (
+                              <>
+                                <video
+                                  src={m.url}
+                                  className="size-full object-cover"
+                                />
+                                <span className="absolute inset-0 grid place-items-center bg-black/30">
+                                  <Play className="size-6 fill-white text-white" />
+                                </span>
+                              </>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+
+              {/* pagination */}
+              {pageCount > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={() => setPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    aria-label="Previous page"
+                    className="hover:bg-accent grid size-9 place-items-center rounded-full border disabled:opacity-40"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+                  {Array.from({ length: pageCount }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPage(i + 1)}
+                      className={cn(
+                        "size-9 rounded-full border text-sm font-semibold transition-colors",
+                        currentPage === i + 1
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "hover:bg-accent"
+                      )}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setPage(currentPage + 1)}
+                    disabled={currentPage === pageCount}
+                    aria-label="Next page"
+                    className="hover:bg-accent grid size-9 place-items-center rounded-full border disabled:opacity-40"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
+
+      <Lightbox
+        open={lightbox.open}
+        onOpenChange={(o) => setLightbox((s) => ({ ...s, open: o }))}
+        items={lightbox.items}
+        index={lightbox.index}
+        onIndexChange={(i) => setLightbox((s) => ({ ...s, index: i }))}
+        alt="Customer media"
+      />
     </section>
   );
 }

@@ -9,8 +9,6 @@ interface CartContextValue {
   items: CartLine[];
   count: number;
   subtotal: number;
-  isOpen: boolean;
-  setOpen: (open: boolean) => void;
   addItem: (product: Product, variant: ProductVariant, qty?: number) => void;
   updateQuantity: (variantId: string, qty: number) => void;
   removeItem: (variantId: string) => void;
@@ -21,7 +19,6 @@ const CartContext = React.createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = React.useState<CartLine[]>([]);
-  const [isOpen, setOpen] = React.useState(false);
   const [hydrated, setHydrated] = React.useState(false);
 
   // Load persisted cart on mount. Hydrating from localStorage is an
@@ -71,7 +68,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         };
         return [...prev, line];
       });
-      setOpen(true);
     },
     []
   );
@@ -99,8 +95,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     items,
     count,
     subtotal,
-    isOpen,
-    setOpen,
     addItem,
     updateQuantity,
     removeItem,

@@ -12,15 +12,10 @@ import { formatPrice, discountPercent } from "@/lib/format";
 import { getCategory } from "@/lib/data/categories";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { RatingStars } from "@/components/product/rating-stars";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCart } from "@/components/product/add-to-cart";
+import { ProductTabs } from "@/components/product/product-tabs";
 import { ProductGrid } from "@/components/product/product-grid";
 import { ProductReviews } from "@/components/product/product-reviews";
 
@@ -138,34 +133,11 @@ export default async function ProductPage({
               </div>
             ))}
           </div>
-
-          <Accordion type="single" collapsible className="rounded-2xl border px-4">
-            <AccordionItem value="details">
-              <AccordionTrigger>Product details</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                {product.description} Tags:{" "}
-                {product.tags.join(", ")}.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="shipping">
-              <AccordionTrigger>Shipping &amp; returns</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Ships from our U.S. warehouse in 1–2 business days with tracked
-                delivery. Free shipping on every order. Not in love? Return
-                within 30 days for a full refund.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="care">
-              <AccordionTrigger>Care &amp; materials</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                Spot clean only. Materials and dimensions are listed in the
-                product details above. Keep your cute things away from water
-                unless noted as waterproof.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
         </div>
       </div>
+
+      {/* full-width detail tabs */}
+      <ProductTabs product={product} />
 
       <ProductReviews product={product} />
 

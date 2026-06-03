@@ -54,7 +54,7 @@ function SearchBar({ className }: { className?: string }) {
 }
 
 export function SiteHeader() {
-  const { count, setOpen } = useCart();
+  const { count } = useCart();
   const { user, logout } = useAuth();
 
   return (
@@ -171,15 +171,16 @@ export function SiteHeader() {
             variant="ghost"
             size="icon"
             className="relative"
-            onClick={() => setOpen(true)}
-            aria-label="Open cart"
+            asChild
           >
-            <ShoppingBag className="size-5" />
-            {count > 0 && (
-              <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 grid size-5 place-items-center rounded-full text-[11px] font-bold">
-                {count}
-              </span>
-            )}
+            <Link href="/cart" aria-label="View cart">
+              <ShoppingBag className="size-5" />
+              {count > 0 && (
+                <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 grid size-5 place-items-center rounded-full text-[11px] font-bold">
+                  {count}
+                </span>
+              )}
+            </Link>
           </Button>
         </div>
       </div>
