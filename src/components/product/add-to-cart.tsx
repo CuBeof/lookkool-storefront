@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Product } from "@/lib/types";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export function AddToCart({ product }: { product: Product }) {
+  const router = useRouter();
   const { addItem } = useCart();
   const [variantId, setVariantId] = React.useState(
     product.variants.find((v) => v.inStock)?.id ?? product.variants[0]?.id
@@ -28,6 +30,12 @@ export function AddToCart({ product }: { product: Product }) {
     if (!variant || !canBuy) return;
     addItem(product, variant, qty);
     toast.success(`Added ${qty} × ${product.title} to your bag 🎀`);
+  }
+
+  function buyNow() {
+    if (!variant || !canBuy) return;
+    addItem(product, variant, qty);
+    router.push("/checkout");
   }
 
   return (
@@ -91,6 +99,17 @@ export function AddToCart({ product }: { product: Product }) {
             : "Sold out"}
         </Button>
       </div>
+
+      <Button
+        size="lg"
+        variant="secondary"
+        className="w-full"
+        disabled={!canBuy}
+        onClick={buyNow}
+      >
+        <Zap className="size-5" />
+        {canBuy ? "Buy now" : "Sold out"}
+      </Button>
     </div>
   );
 }
