@@ -3,6 +3,7 @@ import { Camera, Heart, Music2, Sparkles } from "lucide-react";
 import { categories } from "@/lib/data/categories";
 import { Logo } from "@/components/layout/logo";
 import { NewsletterForm } from "@/components/layout/newsletter-form";
+import { CookieSettingsButton } from "@/components/consent/cookie-settings-button";
 
 export function SiteFooter() {
   return (
@@ -97,10 +98,13 @@ export function SiteFooter() {
 
         <div className="text-muted-foreground mt-10 flex flex-col items-center justify-between gap-2 border-t pt-6 text-xs sm:flex-row">
           <p>© {new Date().getFullYear()} lookkool. All rights reserved.</p>
-          <p className="flex items-center gap-1">
-            Made with <Heart className="size-3 fill-primary text-primary" /> for
-            cute things
-          </p>
+          <div className="flex items-center gap-4">
+            <CookieSettingsButton className="hover:text-foreground" />
+            <p className="flex items-center gap-1">
+              Made with <Heart className="size-3 fill-primary text-primary" />{" "}
+              for cute things
+            </p>
+          </div>
         </div>
       </div>
     </footer>
