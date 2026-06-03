@@ -98,21 +98,26 @@ export function SiteHeader() {
   const { user, logout } = useAuth();
   const [hideAnnounce, setHideAnnounce] = React.useState(false);
 
-  // Hide the announcement bar when scrolling down, show it again near the top.
+  // Collapse the announcement bar once scrolled down, reveal it near the top.
+  // Uses a Schmitt trigger (two thresholds) so the band between them absorbs
+  // jitter — and the layout shift from collapsing the bar — without flicker.
   React.useEffect(() => {
-    let last = window.scrollY;
+    const SHOW_BELOW = 32; // y <= this → show
+    const HIDE_ABOVE = 140; // y >= this → hide (band must exceed the bar height)
     let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const y = window.scrollY;
-        if (y < 8) setHideAnnounce(false);
-        else if (y > last + 4) setHideAnnounce(true);
-        else if (y < last - 4) setHideAnnounce(false);
-        last = y;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      setHideAnnounce((prev) => {
+        if (y <= SHOW_BELOW) return false;
+        if (y >= HIDE_ABOVE) return true;
+        return prev; // inside the band → keep current state (hysteresis)
       });
     };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
