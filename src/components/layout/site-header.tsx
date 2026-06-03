@@ -24,12 +24,21 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-function SearchBar({ className }: { className?: string }) {
+function SearchBar({
+  className,
+  autoFocus,
+  onSubmitted,
+}: {
+  className?: string;
+  autoFocus?: boolean;
+  onSubmitted?: () => void;
+}) {
   const router = useRouter();
   const [q, setQ] = React.useState("");
 
@@ -38,7 +47,10 @@ function SearchBar({ className }: { className?: string }) {
       className={cn("relative w-full", className)}
       onSubmit={(e) => {
         e.preventDefault();
-        if (q.trim()) router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+        if (q.trim()) {
+          router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+          onSubmitted?.();
+        }
       }}
     >
       <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2" />
@@ -48,8 +60,36 @@ function SearchBar({ className }: { className?: string }) {
         placeholder="Search cute things…"
         className="pl-10"
         aria-label="Search products"
+        autoFocus={autoFocus}
       />
     </form>
+  );
+}
+
+function MobileSearch() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden" aria-label="Search">
+          <Search className="size-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="top" className="gap-0 rounded-b-3xl">
+        <SheetHeader className="pb-3">
+          <SheetTitle className="flex items-center gap-2">
+            <Search className="size-5 text-primary" /> Search
+          </SheetTitle>
+          <SheetDescription className="sr-only">
+            Search lookkool products
+          </SheetDescription>
+        </SheetHeader>
+        <div className="px-6 pb-6">
+          <SearchBar autoFocus onSubmitted={() => setOpen(false)} />
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -127,6 +167,7 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <SearchBar className="hidden max-w-xs md:block" />
+          <MobileSearch />
 
           {/* account */}
           <DropdownMenu>
@@ -183,11 +224,6 @@ export function SiteHeader() {
             </Link>
           </Button>
         </div>
-      </div>
-
-      {/* mobile search */}
-      <div className="container-page pb-3 md:hidden">
-        <SearchBar />
       </div>
     </header>
   );
