@@ -60,6 +60,25 @@ export interface CartLine {
   quantity: number;
 }
 
+export interface ReviewMedia {
+  type: "image" | "video";
+  url: string;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  productHandle: string;
+  orderId?: string;
+  author: string;
+  rating: number; // 1–5
+  title: string;
+  body: string;
+  media: ReviewMedia[];
+  createdAt: string;
+  verified: boolean;
+}
+
 export interface ProductQuery {
   category?: CategoryHandle;
   search?: string;

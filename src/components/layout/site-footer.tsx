@@ -65,9 +65,21 @@ export function SiteFooter() {
                   Track my order
                 </Link>
               </li>
-              <li>Shipping &amp; returns</li>
-              <li>FAQ</li>
-              <li>Contact us</li>
+              <li>
+                <Link href="/about" className="hover:text-foreground">
+                  About us
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="hover:text-foreground">
+                  FAQ &amp; shipping
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-foreground">
+                  Contact us
+                </Link>
+              </li>
             </ul>
           </div>
 

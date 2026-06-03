@@ -3,14 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Heart,
-  Menu,
-  Search,
-  ShoppingBag,
-  Sparkles,
-  User,
-} from "lucide-react";
+import { Menu, Search, ShoppingBag, Sparkles, User } from "lucide-react";
 
 import { categories } from "@/lib/data/categories";
 import { useCart } from "@/lib/cart-context";
@@ -172,17 +165,6 @@ export function SiteHeader() {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden sm:inline-flex"
-            asChild
-          >
-            <Link href="/account" aria-label="Wishlist">
-              <Heart className="size-5" />
-            </Link>
-          </Button>
 
           {/* cart */}
           <Button

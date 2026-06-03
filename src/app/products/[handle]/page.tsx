@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Heart, RefreshCw, Shield, Truck } from "lucide-react";
+import { ChevronRight, RefreshCw, Shield, Truck } from "lucide-react";
 
 import {
   getProductByHandle,
@@ -22,6 +22,7 @@ import { RatingStars } from "@/components/product/rating-stars";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCart } from "@/components/product/add-to-cart";
 import { ProductGrid } from "@/components/product/product-grid";
+import { ProductReviews } from "@/components/product/product-reviews";
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -117,10 +118,6 @@ export default async function ProductPage({
 
           <AddToCart product={product} />
 
-          <button className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm font-semibold">
-            <Heart className="size-4" /> Add to wishlist
-          </button>
-
           <Separator />
 
           {/* trust badges */}
@@ -169,6 +166,8 @@ export default async function ProductPage({
           </Accordion>
         </div>
       </div>
+
+      <ProductReviews product={product} />
 
       {related.length > 0 && (
         <section className="mt-16">

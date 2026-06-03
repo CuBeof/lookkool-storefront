@@ -3,11 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Star } from "lucide-react";
+
 import { useAuth } from "@/lib/auth-context";
+import { useReviews } from "@/lib/reviews-context";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ReviewDialog } from "@/components/product/review-dialog";
 
 const STATUS_STYLES: Record<string, string> = {
   processing: "bg-amber-100 text-amber-700",
@@ -17,6 +21,7 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function OrdersPage() {
   const { user, orders } = useAuth();
+  const { hasReviewed } = useReviews();
 
   if (!user) {
     return (
@@ -74,37 +79,63 @@ export default function OrdersPage() {
               <Separator className="my-4" />
 
               <div className="space-y-3">
-                {o.items.map((line) => (
-                  <div key={line.variantId} className="flex items-center gap-3">
-                    <div className="bg-muted relative size-14 shrink-0 overflow-hidden rounded-xl">
-                      {line.image && (
-                        <Image
-                          src={line.image}
-                          alt={line.title}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="flex flex-1 items-center justify-between gap-2 text-sm">
-                      <div>
-                        <Link
-                          href={`/products/${line.handle}`}
-                          className="font-semibold hover:text-primary"
-                        >
-                          {line.title}
-                        </Link>
-                        <p className="text-muted-foreground">
-                          {line.variantTitle} · Qty {line.quantity}
-                        </p>
+                {o.items.map((line) => {
+                  const reviewed = hasReviewed(line.productId, o.id);
+                  return (
+                    <div key={line.variantId} className="flex items-start gap-3">
+                      <div className="bg-muted relative size-14 shrink-0 overflow-hidden rounded-xl">
+                        {line.image && (
+                          <Image
+                            src={line.image}
+                            alt={line.title}
+                            fill
+                            sizes="56px"
+                            className="object-cover"
+                          />
+                        )}
                       </div>
-                      <span className="font-semibold">
-                        {formatPrice(line.price * line.quantity)}
-                      </span>
+                      <div className="flex-1 text-sm">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <Link
+                              href={`/products/${line.handle}`}
+                              className="font-semibold hover:text-primary"
+                            >
+                              {line.title}
+                            </Link>
+                            <p className="text-muted-foreground">
+                              {line.variantTitle} · Qty {line.quantity}
+                            </p>
+                          </div>
+                          <span className="font-semibold whitespace-nowrap">
+                            {formatPrice(line.price * line.quantity)}
+                          </span>
+                        </div>
+
+                        <div className="mt-2">
+                          {reviewed ? (
+                            <span className="text-primary inline-flex items-center gap-1 text-xs font-semibold">
+                              <Star className="size-3.5 fill-primary" /> Review
+                              submitted — thank you!
+                            </span>
+                          ) : (
+                            <ReviewDialog
+                              productId={line.productId}
+                              productHandle={line.handle}
+                              productTitle={line.title}
+                              orderId={o.id}
+                              trigger={
+                                <Button size="sm" variant="outline">
+                                  <Star className="size-3.5" /> Write a review
+                                </Button>
+                              }
+                            />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <Separator className="my-4" />

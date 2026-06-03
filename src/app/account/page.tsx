@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, LogOut, Package, Settings, User } from "lucide-react";
+import { LogOut, Package, Settings, User } from "lucide-react";
 
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
@@ -54,10 +54,9 @@ export default function AccountPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         {[
           { icon: Package, label: "My orders", href: "/account/orders" },
-          { icon: Heart, label: "Wishlist", href: "/account" },
           { icon: User, label: "Profile", href: "/account" },
           { icon: Settings, label: "Settings", href: "/account" },
         ].map((item) => (
