@@ -96,11 +96,39 @@ function MobileSearch() {
 export function SiteHeader() {
   const { count } = useCart();
   const { user, logout } = useAuth();
+  const [hideAnnounce, setHideAnnounce] = React.useState(false);
+
+  // Hide the announcement bar when scrolling down, show it again near the top.
+  React.useEffect(() => {
+    let last = window.scrollY;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        if (y < 8) setHideAnnounce(false);
+        else if (y > last + 4) setHideAnnounce(true);
+        else if (y < last - 4) setHideAnnounce(false);
+        last = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   return (
     <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
-      {/* announcement bar */}
-      <div className="bg-primary text-primary-foreground text-center text-xs font-semibold py-1.5 px-4">
+      {/* announcement bar — collapses on scroll down */}
+      <div
+        className={cn(
+          "bg-primary text-primary-foreground overflow-hidden px-4 text-center text-xs font-semibold transition-all duration-300",
+          hideAnnounce ? "max-h-0 py-0 opacity-0" : "max-h-10 py-1.5 opacity-100"
+        )}
+      >
         <Sparkles className="mr-1 inline size-3" />
         Free U.S. shipping on every order · Cute guaranteed
       </div>
