@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { RatingStars } from "@/components/product/rating-stars";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { AddToCart } from "@/components/product/add-to-cart";
-import { ProductTabs } from "@/components/product/product-tabs";
+import { ProductAccordions } from "@/components/product/product-accordions";
 import { ProductGrid } from "@/components/product/product-grid";
 import { ProductReviews } from "@/components/product/product-reviews";
 
@@ -76,10 +76,12 @@ export default async function ProductPage({
         <span className="text-foreground line-clamp-1">{product.title}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+      <div className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
+        {/* left: gallery (vertical list on desktop) */}
         <ProductGallery images={product.images} title={product.title} />
 
-        <div className="space-y-6">
+        {/* right: info + accordions, sticky until the gallery scrolls out */}
+        <div className="space-y-6 lg:sticky lg:top-24">
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
               {product.badges.map((b) => (
@@ -107,10 +109,6 @@ export default async function ProductPage({
             )}
           </div>
 
-          <p className="text-muted-foreground leading-relaxed">
-            {product.description}
-          </p>
-
           <AddToCart product={product} />
 
           <Separator />
@@ -133,11 +131,27 @@ export default async function ProductPage({
               </div>
             ))}
           </div>
+
+          {/* Specification · FAQs · Shipping & Return */}
+          <ProductAccordions product={product} />
         </div>
       </div>
 
-      {/* full-width detail tabs */}
-      <ProductTabs product={product} />
+      {/* full-width product description */}
+      <section className="mt-12 lg:mt-16">
+        <h2 className="font-display mb-4 text-2xl font-bold">
+          Product description
+        </h2>
+        <div className="bg-card text-muted-foreground rounded-3xl border p-6 leading-relaxed sm:p-8">
+          <p>{product.description}</p>
+          {product.tags.length > 0 && (
+            <p className="mt-3">
+              <span className="text-foreground font-semibold">Perfect for:</span>{" "}
+              {product.tags.join(", ")}.
+            </p>
+          )}
+        </div>
+      </section>
 
       <ProductReviews product={product} />
 
