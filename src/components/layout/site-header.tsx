@@ -96,49 +96,19 @@ function MobileSearch() {
 export function SiteHeader() {
   const { count } = useCart();
   const { user, logout } = useAuth();
-  const [hideAnnounce, setHideAnnounce] = React.useState(false);
-
-  // Collapse the announcement bar once scrolled down, reveal it near the top.
-  // Uses a Schmitt trigger (two thresholds) so the band between them absorbs
-  // jitter — and the layout shift from collapsing the bar — without flicker.
-  React.useEffect(() => {
-    const SHOW_BELOW = 32; // y <= this → show
-    const HIDE_ABOVE = 140; // y >= this → hide (band must exceed the bar height)
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const y = window.scrollY;
-      setHideAnnounce((prev) => {
-        if (y <= SHOW_BELOW) return false;
-        if (y >= HIDE_ABOVE) return true;
-        return prev; // inside the band → keep current state (hysteresis)
-      });
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
 
   return (
-    <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
-      {/* announcement bar — collapses on scroll down */}
-      <div
-        className={cn(
-          "bg-primary text-primary-foreground overflow-hidden px-4 text-center text-xs font-semibold transition-all duration-300",
-          hideAnnounce ? "max-h-0 py-0 opacity-0" : "max-h-10 py-1.5 opacity-100"
-        )}
-      >
+    <>
+      {/* announcement bar — in normal document flow (not sticky), so it simply
+          scrolls away as you scroll down and reappears when you scroll back to
+          the top. Pure CSS, no scroll listener, so it can never flicker. */}
+      <div className="bg-primary text-primary-foreground px-4 py-1.5 text-center text-xs font-semibold">
         <Sparkles className="mr-1 inline size-3" />
         Free U.S. shipping on every order · Cute guaranteed
       </div>
 
-      <div className="container-page flex h-16 items-center gap-4">
+      <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
+        <div className="container-page flex h-16 items-center gap-4">
         {/* mobile nav */}
         <Sheet>
           <SheetTrigger asChild>
@@ -258,6 +228,7 @@ export function SiteHeader() {
           </Button>
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 }
