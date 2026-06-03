@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronRight, RefreshCw, Shield, Truck } from "lucide-react";
 
 import {
   getProductByHandle,
   getRelatedProducts,
+  getFeaturedProducts,
   getProducts,
 } from "@/lib/medusa";
 import { formatPrice, discountPercent } from "@/lib/format";
@@ -48,11 +50,18 @@ export default async function ProductPage({
   const product = await getProductByHandle(handle);
   if (!product) notFound();
 
-  const [related, category] = await Promise.all([
+  const [related, featured, category] = await Promise.all([
     getRelatedProducts(product),
+    getFeaturedProducts(10),
     Promise.resolve(getCategory(product.category)),
   ]);
   const discount = discountPercent(product.price, product.compareAtPrice);
+
+  // 3 same-category picks for the sticky sidebar
+  const sidebarPicks = related.slice(0, 3);
+  const excludeIds = new Set([product.id, ...sidebarPicks.map((p) => p.id)]);
+  // a broader set for the full-width grid at the bottom (no overlap)
+  const moreToLove = featured.filter((p) => !excludeIds.has(p.id)).slice(0, 4);
 
   return (
     <div className="container-page py-6 lg:py-10">
@@ -134,6 +143,45 @@ export default async function ProductPage({
 
           {/* Specification · FAQs · Shipping & Return */}
           <ProductAccordions product={product} />
+
+          {/* You may also like — compact picks */}
+          {sidebarPicks.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <h2 className="font-display text-lg font-bold">
+                You may also like 💕
+              </h2>
+              <div className="space-y-2.5">
+                {sidebarPicks.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/products/${p.handle}`}
+                    className="group bg-card hover:border-primary/50 flex items-center gap-3 rounded-2xl border p-2.5 transition-colors"
+                  >
+                    <div className="bg-muted relative size-16 shrink-0 overflow-hidden rounded-xl">
+                      <Image
+                        src={p.images[0]}
+                        alt={p.title}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="group-hover:text-primary line-clamp-1 text-sm font-semibold">
+                        {p.title}
+                      </p>
+                      <p className="text-muted-foreground line-clamp-1 text-xs">
+                        {p.subtitle}
+                      </p>
+                      <span className="font-display mt-0.5 block text-sm font-bold">
+                        {formatPrice(p.price)}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -155,12 +203,12 @@ export default async function ProductPage({
 
       <ProductReviews product={product} />
 
-      {related.length > 0 && (
+      {moreToLove.length > 0 && (
         <section className="mt-16">
           <h2 className="font-display mb-6 text-2xl font-bold">
-            You might also love 💕
+            More cute finds you&apos;ll love ✨
           </h2>
-          <ProductGrid products={related} />
+          <ProductGrid products={moreToLove} />
         </section>
       )}
     </div>
