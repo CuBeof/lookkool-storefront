@@ -44,6 +44,30 @@ export function Lightbox({
 
   const current = items[index];
 
+  // swipe (mouse / touch) to move between images
+  const [drag, setDrag] = React.useState(0);
+  const [dragging, setDragging] = React.useState(false);
+  const startX = React.useRef(0);
+
+  function onPointerDown(e: React.PointerEvent) {
+    if (count < 2) return;
+    startX.current = e.clientX;
+    setDragging(true);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragging) return;
+    setDrag(e.clientX - startX.current);
+  }
+  function endDrag() {
+    if (!dragging) return;
+    const threshold = Math.min(120, window.innerWidth * 0.15);
+    if (drag <= -threshold) go(1);
+    else if (drag >= threshold) go(-1);
+    setDragging(false);
+    setDrag(0);
+  }
+
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -86,13 +110,26 @@ export function Lightbox({
                 className="animate-in fade-in zoom-in-95 max-h-[85vh] max-w-full rounded-2xl duration-300"
               />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={current?.url}
-                src={current?.url}
-                alt={alt}
-                className="animate-in fade-in zoom-in-95 max-h-[85vh] max-w-full rounded-2xl object-contain duration-300"
-              />
+              <div
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+                className="cursor-grab touch-pan-y select-none active:cursor-grabbing"
+                style={{
+                  transform: `translateX(${drag}px)`,
+                  transition: dragging ? "none" : "transform 0.3s ease",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  key={current?.url}
+                  src={current?.url}
+                  alt={alt}
+                  draggable={false}
+                  className="animate-in fade-in zoom-in-95 max-h-[85vh] max-w-full rounded-2xl object-contain duration-300"
+                />
+              </div>
             )}
           </div>
 
