@@ -7,14 +7,15 @@ import { ArrowRight } from "lucide-react";
 import { categories } from "@/lib/data/categories";
 
 const BASE_REM = 6.25; // sticky offset under the header
-const PEEK_REM = 0.85; // how much each card peeks below the previous
-const MAX_SHRINK = 0.16; // how much a fully-covered card shrinks
+const PEEK_REM = 1.0; // how much each card peeks below the previous
+const STEP = 0.05; // scale lost per layer stacked on top
+const MIN_SCALE = 0.78;
 
 /**
  * Mobile "Shop by vibe" deck: cards are sticky and stack as you scroll.
- * A card scales down once the next one starts covering it, so the layers
- * underneath look progressively smaller than the card on top — a tiered,
- * multi-layer effect. Driven by a rAF-throttled scroll handler.
+ * Each card shrinks by `STEP` for every layer stacked on top of it, so the
+ * deeper a card sits the smaller it stays — a persistent tiered, multi-layer
+ * pyramid even once fully stacked. Driven by a rAF-throttled scroll handler.
  */
 export function CategoryStack() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -31,23 +32,28 @@ export function CategoryStack() {
 
     const update = () => {
       raf = 0;
-      cards.forEach((card, i) => {
-        const next = cards[i + 1];
-        if (!next) {
-          card.style.setProperty("--s", "1");
-          return;
-        }
+      const n = cards.length;
+
+      // progress[i] = how covered card i is by the next card (0..1)
+      const progress = new Array<number>(n).fill(0);
+      for (let i = 0; i < n - 1; i++) {
         const stickyTop = (BASE_REM + i * PEEK_REM) * rem;
-        const cardHeight = card.offsetHeight;
-        const nextTop = next.getBoundingClientRect().top;
-        // 0 when the next card is just below; 1 when it fully covers this one.
+        const cardHeight = cards[i].offsetHeight;
+        const nextTop = cards[i + 1].getBoundingClientRect().top;
         const coverStart = stickyTop + cardHeight;
         const coverEnd = stickyTop + PEEK_REM * rem;
         const denom = Math.max(1, coverStart - coverEnd);
-        const progress = Math.min(1, Math.max(0, (coverStart - nextTop) / denom));
-        const scale = (1 - progress * MAX_SHRINK).toFixed(4);
-        card.style.setProperty("--s", scale);
-      });
+        progress[i] = Math.min(1, Math.max(0, (coverStart - nextTop) / denom));
+      }
+
+      // depth_i = number of layers currently on top of card i (cumulative).
+      // Scale shrinks with depth so lower layers stay smaller than upper ones.
+      let depth = 0;
+      for (let i = n - 1; i >= 0; i--) {
+        depth += progress[i];
+        const scale = Math.max(MIN_SCALE, 1 - depth * STEP);
+        cards[i].style.setProperty("--s", scale.toFixed(4));
+      }
     };
 
     const onScroll = () => {
