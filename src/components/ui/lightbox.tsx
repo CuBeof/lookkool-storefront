@@ -27,9 +27,13 @@ export function Lightbox({
   alt?: string;
 }) {
   const count = items.length;
+  const goTo = React.useCallback(
+    (i: number) => onIndexChange(Math.max(0, Math.min(count - 1, i))),
+    [count, onIndexChange]
+  );
   const go = React.useCallback(
-    (dir: number) => onIndexChange((index + dir + count) % count),
-    [index, count, onIndexChange]
+    (dir: number) => goTo(index + dir),
+    [index, goTo]
   );
 
   React.useEffect(() => {
@@ -44,13 +48,15 @@ export function Lightbox({
 
   const current = items[index];
 
-  // swipe (mouse / touch) to move between images
+  // swipe (mouse / touch) to slide between images — same feel as the gallery
   const [drag, setDrag] = React.useState(0);
   const [dragging, setDragging] = React.useState(false);
   const startX = React.useRef(0);
+  const viewportRef = React.useRef<HTMLDivElement>(null);
 
   function onPointerDown(e: React.PointerEvent) {
-    if (count < 2) return;
+    // let videos keep their native controls
+    if (count < 2 || current?.type === "video") return;
     startX.current = e.clientX;
     setDragging(true);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -61,7 +67,8 @@ export function Lightbox({
   }
   function endDrag() {
     if (!dragging) return;
-    const threshold = Math.min(120, window.innerWidth * 0.15);
+    const w = viewportRef.current?.offsetWidth ?? window.innerWidth;
+    const threshold = Math.min(120, w * 0.15);
     if (drag <= -threshold) go(1);
     else if (drag >= threshold) go(-1);
     setDragging(false);
@@ -96,41 +103,52 @@ export function Lightbox({
             </div>
           )}
 
-          {/* media (stop propagation so clicking it doesn't close) */}
+          {/* media — sliding track of all items (stop propagation so a tap
+              on the image doesn't close the lightbox) */}
           <div
-            className="relative flex max-h-full max-w-5xl items-center justify-center"
+            ref={viewportRef}
+            className="relative w-full max-w-5xl touch-pan-y overflow-hidden select-none"
             onClick={(e) => e.stopPropagation()}
           >
-            {current?.type === "video" ? (
-              <video
-                key={current.url}
-                src={current.url}
-                controls
-                autoPlay
-                className="animate-in fade-in zoom-in-95 max-h-[85vh] max-w-full rounded-2xl duration-300"
-              />
-            ) : (
-              <div
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={endDrag}
-                onPointerCancel={endDrag}
-                className="cursor-grab touch-pan-y select-none active:cursor-grabbing"
-                style={{
-                  transform: `translateX(${drag}px)`,
-                  transition: dragging ? "none" : "transform 0.3s ease",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  key={current?.url}
-                  src={current?.url}
-                  alt={alt}
-                  draggable={false}
-                  className="animate-in fade-in zoom-in-95 max-h-[85vh] max-w-full rounded-2xl object-contain duration-300"
-                />
-              </div>
-            )}
+            <div
+              className={cn(
+                "flex",
+                current?.type === "image" &&
+                  count > 1 &&
+                  "cursor-grab active:cursor-grabbing",
+                !dragging && "transition-transform duration-300 ease-out"
+              )}
+              style={{
+                transform: `translateX(calc(${-index * 100}% + ${drag}px))`,
+              }}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={endDrag}
+              onPointerCancel={endDrag}
+            >
+              {items.map((it, i) => (
+                <div
+                  key={i}
+                  className="flex h-[85vh] w-full shrink-0 items-center justify-center"
+                >
+                  {it.type === "video" ? (
+                    <video
+                      src={it.url}
+                      controls
+                      className="max-h-full max-w-full rounded-2xl"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={it.url}
+                      alt={i === index ? alt : ""}
+                      draggable={false}
+                      className="max-h-full max-w-full rounded-2xl object-contain"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* nav */}
