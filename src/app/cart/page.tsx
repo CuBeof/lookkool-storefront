@@ -10,16 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default function CartPage() {
-  const {
-    items,
-    subtotal,
-    count,
-    freeShippingThreshold,
-    updateQuantity,
-    removeItem,
-  } = useCart();
+  const { items, subtotal, count, updateQuantity, removeItem } = useCart();
 
-  const shipping = subtotal >= freeShippingThreshold || subtotal === 0 ? 0 : 499;
+  // Free shipping on every order, regardless of quantity or price.
+  const shipping = 0;
   const total = subtotal + shipping;
 
   if (items.length === 0) {

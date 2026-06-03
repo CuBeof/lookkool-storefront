@@ -123,7 +123,7 @@ export default async function ProductPage({
           {/* trust badges */}
           <div className="grid grid-cols-3 gap-3 text-center">
             {[
-              { icon: Truck, label: "Free U.S.\nshipping $35+" },
+              { icon: Truck, label: "Free U.S.\nshipping always" },
               { icon: RefreshCw, label: "30-day\nreturns" },
               { icon: Shield, label: "Secure\ncheckout" },
             ].map((t) => (
@@ -151,7 +151,7 @@ export default async function ProductPage({
               <AccordionTrigger>Shipping &amp; returns</AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
                 Ships from our U.S. warehouse in 1–2 business days with tracked
-                delivery. Free shipping on orders over $35. Not in love? Return
+                delivery. Free shipping on every order. Not in love? Return
                 within 30 days for a full refund.
               </AccordionContent>
             </AccordionItem>

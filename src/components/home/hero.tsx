@@ -39,7 +39,7 @@ export function Hero() {
           </div>
           <div className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-2 pt-2 text-sm">
             <span className="inline-flex items-center gap-1.5">
-              <Truck className="size-4 text-primary" /> Free shipping over $35
+              <Truck className="size-4 text-primary" /> Always-free U.S. shipping
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Star className="size-4 fill-amber-400 text-amber-400" /> 4.8/5

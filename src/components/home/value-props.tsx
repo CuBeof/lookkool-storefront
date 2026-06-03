@@ -3,8 +3,8 @@ import { Heart, RefreshCw, Sparkles, Truck } from "lucide-react";
 const props = [
   {
     icon: Truck,
-    title: "Fast U.S. shipping",
-    desc: "Free over $35. Tracked to your door in days.",
+    title: "Always-free shipping",
+    desc: "Free on every order — any size, any price. Tracked to your door.",
   },
   {
     icon: Sparkles,

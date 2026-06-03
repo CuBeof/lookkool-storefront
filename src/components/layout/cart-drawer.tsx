@@ -17,19 +17,8 @@ import {
 } from "@/components/ui/sheet";
 
 export function CartDrawer() {
-  const {
-    items,
-    isOpen,
-    setOpen,
-    subtotal,
-    count,
-    freeShippingThreshold,
-    updateQuantity,
-    removeItem,
-  } = useCart();
-
-  const remaining = Math.max(0, freeShippingThreshold - subtotal);
-  const progress = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const { items, isOpen, setOpen, subtotal, count, updateQuantity, removeItem } =
+    useCart();
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
@@ -60,29 +49,11 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            {/* free shipping progress */}
-            <div className="px-6 py-4">
-              <p className="text-sm">
-                {remaining > 0 ? (
-                  <>
-                    You&apos;re{" "}
-                    <span className="font-bold text-primary">
-                      {formatPrice(remaining)}
-                    </span>{" "}
-                    away from free shipping! 🚚
-                  </>
-                ) : (
-                  <span className="font-semibold text-primary">
-                    🎉 You unlocked free shipping!
-                  </span>
-                )}
+            {/* free shipping — always, on every order */}
+            <div className="px-6 py-3">
+              <p className="bg-secondary/60 text-secondary-foreground rounded-2xl px-4 py-2.5 text-center text-sm font-semibold">
+                🎉 Free shipping included on every order!
               </p>
-              <div className="bg-muted mt-2 h-2 w-full overflow-hidden rounded-full">
-                <div
-                  className="bg-primary h-full rounded-full transition-all"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
             </div>
             <Separator />
 
@@ -165,7 +136,7 @@ export function CartDrawer() {
                 </span>
               </div>
               <p className="text-muted-foreground text-xs">
-                Shipping &amp; taxes calculated at checkout.
+                Free shipping included · taxes calculated at checkout.
               </p>
               <Button size="lg" className="w-full" asChild>
                 <Link href="/checkout" onClick={() => setOpen(false)}>

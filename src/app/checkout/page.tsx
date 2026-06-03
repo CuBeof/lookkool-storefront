@@ -16,13 +16,13 @@ import { Separator } from "@/components/ui/separator";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, freeShippingThreshold, clear } = useCart();
+  const { items, subtotal, clear } = useCart();
   const { user, login, addOrder } = useAuth();
   const [submitting, setSubmitting] = React.useState(false);
   const [email, setEmail] = React.useState(user?.email ?? "");
 
-  const shipping =
-    subtotal >= freeShippingThreshold || subtotal === 0 ? 0 : 499;
+  // Free shipping on every order, regardless of quantity or price.
+  const shipping = 0;
   const tax = Math.round(subtotal * 0.07);
   const total = subtotal + shipping + tax;
 

@@ -62,7 +62,7 @@ export function SiteHeader() {
       {/* announcement bar */}
       <div className="bg-primary text-primary-foreground text-center text-xs font-semibold py-1.5 px-4">
         <Sparkles className="mr-1 inline size-3" />
-        Free U.S. shipping on orders over $35 · Cute guaranteed
+        Free U.S. shipping on every order · Cute guaranteed
       </div>
 
       <div className="container-page flex h-16 items-center gap-4">

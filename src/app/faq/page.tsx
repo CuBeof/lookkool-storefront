@@ -23,7 +23,7 @@ const groups: { title: string; items: { q: string; a: string }[] }[] = [
       },
       {
         q: "How much is shipping?",
-        a: "Standard shipping is a flat $4.99, and it's free on every order over $35. You'll see the exact cost at checkout.",
+        a: "Shipping is always free on every order — no minimums, no matter the quantity or price. What you see is what you pay.",
       },
       {
         q: "How long will my order take?",

@@ -4,13 +4,11 @@ import * as React from "react";
 import type { CartLine, Product, ProductVariant } from "@/lib/types";
 
 const STORAGE_KEY = "lookkool-cart-v1";
-const FREE_SHIPPING_THRESHOLD = 3500; // cents
 
 interface CartContextValue {
   items: CartLine[];
   count: number;
   subtotal: number;
-  freeShippingThreshold: number;
   isOpen: boolean;
   setOpen: (open: boolean) => void;
   addItem: (product: Product, variant: ProductVariant, qty?: number) => void;
@@ -101,7 +99,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     items,
     count,
     subtotal,
-    freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
     isOpen,
     setOpen,
     addItem,
