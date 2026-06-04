@@ -96,44 +96,19 @@ function MobileSearch() {
 export function SiteHeader() {
   const { count } = useCart();
   const { user, logout } = useAuth();
-  const [hideAnnounce, setHideAnnounce] = React.useState(false);
-
-  // Hide the announcement bar when scrolling down, show it again near the top.
-  React.useEffect(() => {
-    let last = window.scrollY;
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const y = window.scrollY;
-        if (y < 8) setHideAnnounce(false);
-        else if (y > last + 4) setHideAnnounce(true);
-        else if (y < last - 4) setHideAnnounce(false);
-        last = y;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
 
   return (
-    <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
-      {/* announcement bar — collapses on scroll down */}
-      <div
-        className={cn(
-          "bg-primary text-primary-foreground overflow-hidden px-4 text-center text-xs font-semibold transition-all duration-300",
-          hideAnnounce ? "max-h-0 py-0 opacity-0" : "max-h-10 py-1.5 opacity-100"
-        )}
-      >
+    <>
+      {/* announcement bar — in normal document flow (not sticky), so it simply
+          scrolls away as you scroll down and reappears when you scroll back to
+          the top. Pure CSS, no scroll listener, so it can never flicker. */}
+      <div className="bg-primary text-primary-foreground px-4 py-1.5 text-center text-xs font-semibold">
         <Sparkles className="mr-1 inline size-3" />
         Free U.S. shipping on every order · Cute guaranteed
       </div>
 
-      <div className="container-page flex h-16 items-center gap-4">
+      <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
+        <div className="container-page flex h-16 items-center gap-4">
         {/* mobile nav */}
         <Sheet>
           <SheetTrigger asChild>
@@ -253,6 +228,7 @@ export function SiteHeader() {
           </Button>
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 }

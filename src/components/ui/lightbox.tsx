@@ -48,31 +48,74 @@ export function Lightbox({
 
   const current = items[index];
 
-  // swipe (mouse / touch) to slide between images — same feel as the gallery
-  const [drag, setDrag] = React.useState(0);
+  // keep a stable reference to the latest onOpenChange for the effects below
+  const closeRef = React.useRef(onOpenChange);
+  React.useEffect(() => {
+    closeRef.current = onOpenChange;
+  });
+
+  // close on browser / mobile back button instead of leaving the page
+  React.useEffect(() => {
+    if (!open) return;
+    let poppedByBack = false;
+    window.history.pushState({ lightbox: true }, "");
+    const onPop = () => {
+      poppedByBack = true;
+      closeRef.current(false);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      // closed by other means (esc/swipe/button) → remove the history entry
+      if (!poppedByBack) window.history.back();
+    };
+  }, [open]);
+
+  // drag: horizontal to slide, vertical to dismiss — same feel as the gallery
+  const [dragX, setDragX] = React.useState(0);
+  const [dragY, setDragY] = React.useState(0);
   const [dragging, setDragging] = React.useState(false);
-  const startX = React.useRef(0);
+  const start = React.useRef({ x: 0, y: 0 });
+  const axis = React.useRef<"x" | "y" | null>(null);
   const viewportRef = React.useRef<HTMLDivElement>(null);
 
   function onPointerDown(e: React.PointerEvent) {
-    // let videos keep their native controls
-    if (count < 2 || current?.type === "video") return;
-    startX.current = e.clientX;
+    if (current?.type === "video") return; // keep native video controls
+    start.current = { x: e.clientX, y: e.clientY };
+    axis.current = null;
     setDragging(true);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
   function onPointerMove(e: React.PointerEvent) {
     if (!dragging) return;
-    setDrag(e.clientX - startX.current);
+    const dx = e.clientX - start.current.x;
+    const dy = e.clientY - start.current.y;
+    if (!axis.current && Math.abs(dx) + Math.abs(dy) > 8) {
+      axis.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    }
+    if (axis.current === "x") {
+      if (count > 1) setDragX(dx);
+    } else if (axis.current === "y") {
+      setDragY(dy);
+    }
   }
   function endDrag() {
     if (!dragging) return;
-    const w = viewportRef.current?.offsetWidth ?? window.innerWidth;
-    const threshold = Math.min(120, w * 0.15);
-    if (drag <= -threshold) go(1);
-    else if (drag >= threshold) go(-1);
+    if (axis.current === "y") {
+      // swipe up or down far enough → close
+      if (Math.abs(dragY) > Math.min(140, window.innerHeight * 0.18)) {
+        onOpenChange(false);
+      }
+    } else if (axis.current === "x") {
+      const w = viewportRef.current?.offsetWidth ?? window.innerWidth;
+      const threshold = Math.min(120, w * 0.15);
+      if (dragX <= -threshold) go(1);
+      else if (dragX >= threshold) go(-1);
+    }
     setDragging(false);
-    setDrag(0);
+    setDragX(0);
+    setDragY(0);
+    axis.current = null;
   }
 
   return (
@@ -107,19 +150,25 @@ export function Lightbox({
               on the image doesn't close the lightbox) */}
           <div
             ref={viewportRef}
-            className="relative w-full max-w-5xl touch-pan-y overflow-hidden select-none"
+            className="relative w-full max-w-5xl overflow-hidden select-none"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              transform: `translateY(${dragY}px)`,
+              opacity: dragY ? Math.max(0.3, 1 - Math.abs(dragY) / 600) : 1,
+              transition: dragging
+                ? "none"
+                : "transform 0.3s ease, opacity 0.3s ease",
+            }}
           >
             <div
               className={cn(
-                "flex",
+                "flex touch-none",
                 current?.type === "image" &&
-                  count > 1 &&
                   "cursor-grab active:cursor-grabbing",
                 !dragging && "transition-transform duration-300 ease-out"
               )}
               style={{
-                transform: `translateX(calc(${-index * 100}% + ${drag}px))`,
+                transform: `translateX(calc(${-index * 100}% + ${dragX}px))`,
               }}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
