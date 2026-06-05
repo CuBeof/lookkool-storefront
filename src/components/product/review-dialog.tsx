@@ -93,7 +93,7 @@ export function ReviewDialog({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (rating === 0) {
-      toast.error("Please pick a star rating 🌟");
+      toast.error("Please pick a star rating");
       return;
     }
     const review: Review = {
@@ -113,8 +113,8 @@ export function ReviewDialog({
     setOpen(false);
     toast.success(
       persisted
-        ? "Thanks for your review! 💕"
-        : "Review added — media was too large to save permanently."
+        ? "Thanks for your review!"
+        : "Review added - media was too large to save permanently."
     );
     // reset
     setRating(0);

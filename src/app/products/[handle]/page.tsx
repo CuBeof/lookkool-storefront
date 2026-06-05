@@ -13,6 +13,7 @@ import {
 import { formatPrice, discountPercent } from "@/lib/format";
 import { getCategory } from "@/lib/data/categories";
 import { Badge } from "@/components/ui/badge";
+import { badgeVariant } from "@/lib/badge-variant";
 import { Separator } from "@/components/ui/separator";
 import { RatingStars } from "@/components/product/rating-stars";
 import { ProductGallery } from "@/components/product/product-gallery";
@@ -94,11 +95,11 @@ export default async function ProductPage({
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
               {product.badges.map((b) => (
-                <Badge key={b}>{b}</Badge>
+                <Badge key={b} variant={badgeVariant[b] ?? "bestseller"}>
+                  {b}
+                </Badge>
               ))}
-              {discount > 0 && (
-                <Badge variant="secondary">Save {discount}%</Badge>
-              )}
+              {discount > 0 && <Badge variant="sale">Save {discount}%</Badge>}
             </div>
             <h1 className="font-display text-3xl font-bold lg:text-4xl">
               {product.title}

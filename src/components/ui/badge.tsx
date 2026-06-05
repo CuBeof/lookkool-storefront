@@ -5,20 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 gap-1 [&>svg]:size-3 transition-colors",
+  "inline-flex items-center justify-center rounded-sm border px-2.5 py-1 text-[13px] font-medium leading-none w-fit whitespace-nowrap shrink-0 gap-1 [&>svg]:size-3",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        accent: "border-transparent bg-accent text-accent-foreground",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground",
-        outline: "text-foreground border-border",
+        // fixed color = fixed meaning, scannable at a glance (no coral fill)
+        bestseller: "border-transparent bg-foreground text-background",
+        sale: "border-transparent bg-sale text-on-sale",
+        new: "border-transparent bg-mint text-on-mint",
+        lowstock: "border-transparent bg-butter text-on-butter",
+        gift: "bg-cream text-coral-text border-coral/40",
+        secondary: "border-transparent bg-muted text-muted-foreground",
+        outline: "text-foreground border-border bg-card",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "bestseller",
     },
   }
 );

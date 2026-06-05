@@ -102,12 +102,12 @@ export function SiteHeader() {
       {/* announcement bar — in normal document flow (not sticky), so it simply
           scrolls away as you scroll down and reappears when you scroll back to
           the top. Pure CSS, no scroll listener, so it can never flicker. */}
-      <div className="bg-primary text-primary-foreground px-4 py-1.5 text-center text-xs font-semibold">
-        <Sparkles className="mr-1 inline size-3" />
-        Free U.S. shipping on every order · Cute guaranteed
+      <div className="bg-foreground text-background px-4 py-2 text-center text-xs font-medium tracking-tight">
+        <Sparkles className="mr-1.5 inline size-3" />
+        Free U.S. shipping on every order, no minimum
       </div>
 
-      <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur-md">
+      <header className="bg-cream/85 sticky top-0 z-40 border-b backdrop-blur-md">
         <div className="container-page flex h-16 items-center gap-4">
         {/* mobile nav */}
         <Sheet>
@@ -128,9 +128,8 @@ export function SiteHeader() {
                 <SheetClose asChild key={c.handle}>
                   <Link
                     href={`/categories/${c.handle}`}
-                    className="hover:bg-accent flex items-center gap-3 rounded-2xl px-3 py-3 text-base font-semibold"
+                    className="hover:bg-accent flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium"
                   >
-                    <span className="text-xl">{c.emoji}</span>
                     {c.name}
                   </Link>
                 </SheetClose>
@@ -138,9 +137,9 @@ export function SiteHeader() {
               <SheetClose asChild>
                 <Link
                   href="/products"
-                  className="hover:bg-accent flex items-center gap-3 rounded-2xl px-3 py-3 text-base font-semibold"
+                  className="hover:bg-accent flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium"
                 >
-                  <span className="text-xl">🛍️</span> Shop all
+                  Shop all
                 </Link>
               </SheetClose>
             </nav>
@@ -182,7 +181,7 @@ export function SiteHeader() {
             <DropdownMenuContent align="end" className="w-56">
               {user ? (
                 <>
-                  <DropdownMenuLabel>Hi, {user.name} 👋</DropdownMenuLabel>
+                  <DropdownMenuLabel>Hi, {user.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/account">My account</Link>
@@ -220,7 +219,10 @@ export function SiteHeader() {
             <Link href="/cart" aria-label="View cart">
               <ShoppingBag className="size-5" />
               {count > 0 && (
-                <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 grid size-5 place-items-center rounded-full text-[11px] font-bold">
+                <span
+                  key={count}
+                  className="bg-primary text-primary-foreground animate-cart-pop absolute -top-0.5 -right-0.5 grid size-5 place-items-center rounded-full text-[11px] font-bold"
+                >
                   {count}
                 </span>
               )}

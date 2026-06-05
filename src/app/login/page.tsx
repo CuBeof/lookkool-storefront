@@ -26,10 +26,10 @@ function LoginInner() {
     e.preventDefault();
     if (mode === "register") {
       register(name || email.split("@")[0], email);
-      toast.success("Welcome to the cute club! 🎀");
+      toast.success("Welcome to the cute club!");
     } else {
       login(email);
-      toast.success("You're logged in! 💕");
+      toast.success("You're logged in!");
     }
     router.push("/account");
   }

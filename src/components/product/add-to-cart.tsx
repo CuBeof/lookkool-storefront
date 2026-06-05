@@ -29,7 +29,7 @@ export function AddToCart({ product }: { product: Product }) {
   function add() {
     if (!variant || !canBuy) return;
     addItem(product, variant, qty);
-    toast.success(`Added ${qty} × ${product.title} to your bag 🎀`);
+    toast.success(`Added ${qty} × ${product.title} to your bag`);
   }
 
   function buyNow() {

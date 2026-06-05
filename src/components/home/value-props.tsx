@@ -29,8 +29,8 @@ export function ValueProps() {
       <div className="container-page grid gap-6 py-10 sm:grid-cols-2 lg:grid-cols-4">
         {props.map((p) => (
           <div key={p.title} className="flex items-start gap-3">
-            <span className="bg-secondary text-secondary-foreground grid size-11 shrink-0 place-items-center rounded-2xl">
-              <p.icon className="size-5" />
+            <span className="border-border text-foreground grid size-11 shrink-0 place-items-center rounded-full border">
+              <p.icon className="size-[18px]" strokeWidth={1.75} />
             </span>
             <div>
               <h3 className="font-semibold">{p.title}</h3>

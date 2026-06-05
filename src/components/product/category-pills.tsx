@@ -9,31 +9,25 @@ export function CategoryPills({
   active?: string;
   basePath?: string;
 }) {
-  const pills = [
-    { handle: "", name: "All", emoji: "🛍️" },
-    ...categories,
-  ];
+  const pills = [{ handle: "", name: "All" }, ...categories];
 
   return (
     <div className="flex flex-wrap gap-2">
       {pills.map((c) => {
         const href =
-          c.handle === ""
-            ? basePath
-            : `${basePath}?category=${c.handle}`;
+          c.handle === "" ? basePath : `${basePath}?category=${c.handle}`;
         const isActive = (active ?? "") === c.handle;
         return (
           <Link
             key={c.handle || "all"}
             href={href}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border-2 px-4 py-2 text-sm font-semibold transition-colors",
+              "inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium transition-colors",
               isActive
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:border-primary/50"
+                ? "border-foreground bg-foreground text-background"
+                : "border-border hover:bg-accent"
             )}
           >
-            <span>{c.emoji}</span>
             {c.name}
           </Link>
         );

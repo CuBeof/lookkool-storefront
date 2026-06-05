@@ -14,7 +14,7 @@ export default function ContactPage() {
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSent(true);
-    toast.success("Message sent! We'll reply within 24 hours 💌");
+    toast.success("Message sent! We'll reply within 24 hours");
     e.currentTarget.reset();
   }
 

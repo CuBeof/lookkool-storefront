@@ -14,7 +14,7 @@ export function NewsletterForm() {
       onSubmit={(e) => {
         e.preventDefault();
         if (!email.trim()) return;
-        toast.success("You're in! 🎀 Check your inbox for 10% off.");
+        toast.success("You're in! Check your inbox for 10% off.");
         setEmail("");
       }}
     >

@@ -7,17 +7,15 @@ export function Logo({ className }: { className?: string }) {
     <Link
       href="/"
       className={cn(
-        "group inline-flex items-center gap-1.5 font-display text-2xl font-bold tracking-tight",
+        "group inline-flex items-center gap-1.5 font-display text-2xl font-semibold tracking-tight text-foreground",
         className
       )}
       aria-label="lookkool home"
     >
-      <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:rotate-12">
+      <span className="bg-primary text-primary-foreground ease-bounce grid size-8 place-items-center rounded-xl transition-transform duration-200 group-hover:-rotate-6">
         <Sparkles className="size-4" />
       </span>
-      <span>
-        look<span className="text-primary">kool</span>
-      </span>
+      <span>lookkool</span>
     </Link>
   );
 }
